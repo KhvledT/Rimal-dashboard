@@ -10,6 +10,7 @@ import { RoleGuard } from "./components/RoleGuard.js";
 import { DashboardLayout } from "./components/DashboardLayout.js";
 import { ROUTE_PATHS } from "./constants/index.js";
 import { ErrorBoundary } from "./components/ErrorBoundary.js";
+import { EnvValidator } from "./components/EnvValidator.js";
 
 // Lazy loading views
 const Login = React.lazy(() => import("./pages/Login.js"));
@@ -39,6 +40,7 @@ const queryClient = new QueryClient({
 export const App = () => {
   return (
     <ErrorBoundary>
+      <EnvValidator />
       <QueryClientProvider client={queryClient}>
         <QueryClientProviderWrapper queryClient={queryClient}>
           <BrowserRouter>

@@ -57,7 +57,7 @@ export const profileService = {
   },
 
   getDownloadUrl(): string {
-    const baseURL = httpClient.defaults.baseURL || "http://localhost:3000";
+    const baseURL = httpClient.defaults.baseURL || "";
     return `${baseURL}${API_ROUTES.CORPORATE_PROFILE.DOWNLOAD}`;
   },
 };

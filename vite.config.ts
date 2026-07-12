@@ -12,6 +12,9 @@ export default defineConfig(({ mode: _mode }) => ({
       overlay: false,
     },
   },
+  build: {
+    sourcemap: false,
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

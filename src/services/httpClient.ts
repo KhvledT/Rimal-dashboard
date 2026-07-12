@@ -5,10 +5,7 @@ import { authService } from "./auth.service.js";
 import { authEventManager } from "../lib/authEventManager.js";
 
 const getApiUrl = (): string => {
-  return (
-    (import.meta.env.VITE_API_URL as string) ||
-    "https://rimal-backend.vercel.app"
-  );
+  return (import.meta.env.VITE_API_URL as string) || "";
 };
 
 const httpClient: AxiosInstance = axios.create({
@@ -21,15 +18,15 @@ const httpClient: AxiosInstance = axios.create({
 // ==========================================
 
 type QueuedRequest = {
-  resolve: (value: any) => void;
-  reject: (reason?: any) => void;
+  resolve: (value: unknown) => void;
+  reject: (reason?: unknown) => void;
   config: InternalAxiosRequestConfig;
 };
 
 let isRefreshing = false;
 let refreshSubscribers: QueuedRequest[] = [];
 
-const subscribeToRefresh = (config: InternalAxiosRequestConfig): Promise<any> => {
+const subscribeToRefresh = (config: InternalAxiosRequestConfig): Promise<unknown> => {
   return new Promise((resolve, reject) => {
     refreshSubscribers.push({ resolve, reject, config });
   });
@@ -45,7 +42,7 @@ const onRefreshSuccess = (newAccessToken: string) => {
   refreshSubscribers = [];
 };
 
-const onRefreshFailure = (error: any) => {
+const onRefreshFailure = (error: unknown) => {
   refreshSubscribers.forEach(({ reject }) => {
     reject(error);
   });
@@ -129,7 +126,7 @@ httpClient.interceptors.response.use(
         if (isRefreshing) {
           try {
             return await subscribeToRefresh(originalRequest);
-          } catch (err) {
+          } catch {
             // Refresh failed while waiting, fall through to emit auth event
           }
         }
