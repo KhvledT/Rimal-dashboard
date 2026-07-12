@@ -14,6 +14,27 @@ const httpClient: AxiosInstance = axios.create({
 });
 
 // ==========================================
+// Refresh Request Normalization & Matcher
+// ==========================================
+const isRefreshTokenRoute = (url: string | undefined): boolean => {
+  if (!url) return false;
+
+  let pathname = url;
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    try {
+      pathname = new URL(url).pathname;
+    } catch {
+      // Ignore URL parsing errors and keep path as is
+    }
+  }
+
+  const normalizedPath = pathname.split("?")[0];
+  const cleanPath = normalizedPath.startsWith("/") ? normalizedPath : `/${normalizedPath}`;
+
+  return cleanPath === API_ROUTES.AUTH.REFRESH_TOKEN;
+};
+
+// ==========================================
 // Refresh Queue Implementation
 // ==========================================
 
@@ -37,6 +58,8 @@ const onRefreshSuccess = (newAccessToken: string) => {
     if (config.headers) {
       config.headers.Authorization = `Bearer ${newAccessToken}`;
     }
+    // Set _retry to true on queued requests to prevent loop if retried request fails
+    (config as any)._retry = true;
     resolve(httpClient(config));
   });
   refreshSubscribers = [];
@@ -119,15 +142,16 @@ httpClient.interceptors.response.use(
 
       // Extract specific backend error message if available
       const backendMessage = data?.message || data?.error;
+      const isRefreshRequest = isRefreshTokenRoute(originalRequest.url);
 
       // Handle 401 Unauthorized - Attempt Silent Refresh
-      if (status === 401 && !originalRequest._retry && !originalRequest._skipRefresh) {
+      if (status === 401 && !originalRequest._retry && !originalRequest._skipRefresh && !isRefreshRequest) {
         // If already refreshing, queue the request
         if (isRefreshing) {
           try {
             return await subscribeToRefresh(originalRequest);
-          } catch {
-            // Refresh failed while waiting, fall through to emit auth event
+          } catch (queueError) {
+            return Promise.reject(queueError);
           }
         }
 
@@ -158,22 +182,36 @@ httpClient.interceptors.response.use(
 
           // Retry the original request
           return httpClient(originalRequest);
-        } catch (refreshError) {
-          // Refresh failed - emit auth event instead of navigating
+        } catch (refreshError: any) {
+          // Perform cleanup in precise order:
+          // 1. Stop refreshing
+          isRefreshing = false;
+
+          // 2. & 3. Reject every queued request & Empty refreshSubscribers
           onRefreshFailure(refreshError);
 
-          // Clear local storage
-          authStorage.clear();
+          // Check if this is a network/connectivity error (status is undefined)
+          // or a temporary server error (e.g. 500, 502, 503, 504)
+          // We only logout on auth validation failures (400, 401, 403)
+          const isAuthError = refreshError?.status === 400 || refreshError?.status === 401 || refreshError?.status === 403;
 
-          // Emit auth event for AuthContext to handle
-          authEventManager.emitSessionExpired(
-            refreshError instanceof Error ? refreshError.message : 'Token refresh failed'
-          );
+          if (isAuthError) {
+            // 4. Clear authentication storage
+            authStorage.clear();
 
-          return Promise.reject({
-            message: "Session expired. Please log in again.",
-            status: 401,
-          });
+            // 5. Emit session expired event
+            authEventManager.emitSessionExpired(
+              refreshError instanceof Error ? refreshError.message : 'Token refresh failed'
+            );
+
+            return Promise.reject({
+              message: "Session expired. Please log in again.",
+              status: 401,
+            });
+          } else {
+            // Return network/server error normally without logging out
+            return Promise.reject(refreshError);
+          }
         } finally {
           isRefreshing = false;
         }
