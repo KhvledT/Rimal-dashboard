@@ -1,0 +1,163 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* RIMAL Brand Colors - from branding guide */
+    --background: 40 33% 96%; /* Sand White #F6F3EE */
+    --foreground: 220 31% 20%; /* Deep Navy #232C44 */
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 31% 20%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 31% 20%;
+
+    --primary: 345 74% 31%; /* Dark Amaranth #8A1538 */
+    --primary-foreground: 40 33% 95%;
+
+    --secondary: 32 30% 55%; /* Desert Gold #B19266 */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 37 24% 87%; /* Warm Beige #E7E1D3 */
+    --muted-foreground: 220 31% 20%;
+
+    --accent: 32 30% 55%; /* Desert Gold */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 37 24% 82%;
+    --input: 37 24% 82%;
+    --ring: 345 74% 31%;
+
+    --radius: 0.375rem;
+
+    /* Custom tokens */
+    --burgundy: 345 74% 31%;
+    --burgundy-deep: 345 80% 24%;
+    --gold: 32 30% 55%;
+    --gold-light: 32 35% 70%;
+    --navy: 220 31% 20%;
+    --navy-deep: 228 17% 15%;
+    --sand: 40 33% 96%;
+    --beige: 37 24% 87%;
+    --charcoal: 230 14% 14%;
+
+    --sidebar-background: 228 17% 15%; /* Navy Deep */
+    --sidebar-foreground: 40 33% 95%;
+    --sidebar-primary: 345 74% 31%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 345 74% 20%;
+    --sidebar-accent-foreground: 40 33% 95%;
+    --sidebar-border: 220 31% 25%;
+    --sidebar-ring: 345 74% 31%;
+  }
+
+  .dark {
+    --background: 230 14% 14%;
+    --foreground: 40 33% 95%;
+
+    --card: 230 14% 12%;
+    --card-foreground: 40 33% 95%;
+
+    --popover: 230 14% 12%;
+    --popover-foreground: 40 33% 95%;
+
+    --primary: 345 74% 31%;
+    --primary-foreground: 40 33% 95%;
+
+    --secondary: 32 30% 55%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 220 31% 20%;
+    --muted-foreground: 37 24% 80%;
+
+    --accent: 32 30% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 220 31% 25%;
+    --input: 220 31% 25%;
+    --ring: 345 74% 31%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    font-family: 'Open Sans', system-ui, sans-serif;
+    @apply bg-background text-foreground antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', system-ui, sans-serif;
+    @apply uppercase tracking-wider font-semibold;
+  }
+}
+
+@layer utilities {
+  .text-gold {
+    color: hsl(var(--gold));
+  }
+
+  .bg-burgundy {
+    background-color: hsl(var(--burgundy));
+  }
+
+  .bg-burgundy-deep {
+    background-color: hsl(var(--burgundy-deep));
+  }
+
+  .bg-sand {
+    background-color: hsl(var(--sand));
+  }
+
+  .bg-charcoal {
+    background-color: hsl(var(--charcoal));
+  }
+
+  .bg-beige {
+    background-color: hsl(var(--beige));
+  }
+
+  .text-navy {
+    color: hsl(var(--navy));
+  }
+
+  .text-burgundy {
+    color: hsl(var(--primary));
+  }
+
+  .border-gold {
+    border-color: hsl(var(--gold));
+  }
+}
+
+/* Custom scrollbars for clean dashboard styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--gold));
+}
