@@ -59,7 +59,7 @@ export const Login = () => {
   // Form setups using centralized schemas
   const loginForm = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { username: "", password: "" },
+    defaultValues: { identifier: "", password: "" },
   });
 
   const signupForm = useForm<SignupInput>({
@@ -73,7 +73,10 @@ export const Login = () => {
 
   const onLoginSubmit = async (data: LoginInput) => {
     try {
-      await login(data);
+      await login({
+        ...data,
+        identifier: data.identifier.trim(),
+      });
       toast.success("Signed in successfully.");
       const savedUser = getAuthContext();
       if (savedUser && permissions.hasDashboardAccess(savedUser)) {
@@ -116,7 +119,7 @@ export const Login = () => {
       await verifyOtp(fullVerifyData);
       toast.success("Account verified successfully! You may now sign in.");
       setMode("login");
-      loginForm.setValue("username", verifyCredentials.username);
+      loginForm.setValue("identifier", verifyCredentials.username);
     } catch (err: unknown) {
       const errorObj = err as { message?: string };
       toast.error(
@@ -229,23 +232,28 @@ export const Login = () => {
           {mode === "login" && (
             <form
               onSubmit={loginForm.handleSubmit(onLoginSubmit)}
+              noValidate
               className="space-y-4 font-body"
             >
               <fieldset disabled={isLoading} className="space-y-4">
                 <div>
                   <label className="block text-[11px] font-semibold text-navy uppercase tracking-wider mb-1.5">
-                    Username or Email
+                    Email or Username
                   </label>
                   <input
                     type="text"
                     autoFocus
-                    placeholder="admin_user"
-                    {...loginForm.register("username")}
+                    autoComplete="on"
+                    spellCheck={false}
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    placeholder="Enter your email or username"
+                    {...loginForm.register("identifier")}
                     className="w-full bg-sand border border-border rounded py-2 px-3 text-xs font-body focus:outline-none focus:ring-1 focus:ring-burgundy focus:border-burgundy"
                   />
-                  {loginForm.formState.errors.username && (
+                  {loginForm.formState.errors.identifier && (
                     <p className="text-[10px] text-red-600 font-medium mt-1">
-                      {loginForm.formState.errors.username.message}
+                      {loginForm.formState.errors.identifier.message}
                     </p>
                   )}
                 </div>
